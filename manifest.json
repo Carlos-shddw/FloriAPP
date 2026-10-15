@@ -2,7 +2,7 @@
   "name": "Floricultura — Botânica & Jardinagem",
   "short_name": "Floricultura",
   "description": "Plataforma para identificação de espécies, catálogo botânico e gestão inteligente de cuidados de plantas.",
-  "start_url": "/index.html",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#F4F6F4",
   "theme_color": "#1B4D3E",
@@ -14,13 +14,13 @@
       "name": "O Meu Jardim",
       "short_name": "Jardim",
       "description": "Aceda às suas plantas registadas",
-      "url": "/index.html#minhas-plantas"
+      "url": "./index.html#minhas-plantas"
     },
     {
       "name": "Identificar Planta",
       "short_name": "Identificar",
       "description": "Tire foto a uma planta",
-      "url": "/index.html#identificar"
+      "url": "./index.html#identificar"
     }
   ]
 }

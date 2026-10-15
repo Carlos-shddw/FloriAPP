@@ -1,23 +1,28 @@
-const CACHE_VERSION = 'v1.0.0';
-const STATIC_CACHE = `floricultura-static-${CACHE_VERSION}`;
-const DYNAMIC_CACHE = `floricultura-dynamic-${CACHE_VERSION}`;
+const CACHE_VERSION = 'v1.1.0';
+const SCOPE_URL = self.registration.scope;
+const SCOPE_NAME = new URL(SCOPE_URL).pathname.split('/').filter(Boolean).join('-') || 'root';
+const CACHE_PREFIX = `floricultura-${SCOPE_NAME.toLowerCase()}`;
+const STATIC_CACHE = `${CACHE_PREFIX}-static-${CACHE_VERSION}`;
+const DYNAMIC_CACHE = `${CACHE_PREFIX}-dynamic-${CACHE_VERSION}`;
+const OFFLINE_URL = new URL('pages/offline.html', SCOPE_URL).href;
 
 // Recursos essenciais do App Shell
-const APP_SHELL = [
-  '/',
-  '/index.html',
-  '/pages/offline.html',
-  '/pages/sobre.html',
-  '/assets/css/styles.css',
-  '/assets/css/components/header.css',
-  '/assets/css/components/cards.css',
-  '/assets/js/app.js',
-  '/assets/js/db.js',
-  '/assets/js/modules/api.js',
-  '/assets/js/modules/ui.js',
-  '/assets/js/modules/utils.js',
-  '/manifest.json'
+const APP_SHELL_PATHS = [
+  '',
+  'index.html',
+  'pages/offline.html',
+  'pages/sobre.html',
+  'assets/css/styles.css',
+  'assets/css/components/header.css',
+  'assets/css/components/cards.css',
+  'assets/js/app.js',
+  'assets/js/db.js',
+  'assets/js/modules/api.js',
+  'assets/js/modules/ui.js',
+  'assets/js/modules/utils.js',
+  'manifest.json'
 ];
+const APP_SHELL = APP_SHELL_PATHS.map((path) => new URL(path, SCOPE_URL).href);
 
 // Instalação: Pré-carregamento estático
 self.addEventListener('install', (event) => {
@@ -29,19 +34,23 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Ativação: Limpeza de caches antigas
+// Ativação: Limpeza apenas das caches desta aplicação
 self.addEventListener('activate', (event) => {
+  const legacyCaches = new Set([
+    'floricultura-static-v1.0.0',
+    'floricultura-dynamic-v1.0.0'
+  ]);
+
   event.waitUntil(
-    caches.keys().then((keys) => {
-      return Promise.all(
-        keys.map((key) => {
-          if (key !== STATIC_CACHE && key !== DYNAMIC_CACHE) {
-            console.log('[SW] A remover cache antiga:', key);
-            return caches.delete(key);
-          }
-        })
-      );
-    }).then(() => self.clients.claim())
+    caches.keys().then((keys) => Promise.all(
+      keys.map((key) => {
+        const isAppCache = key.startsWith(`${CACHE_PREFIX}-`) || legacyCaches.has(key);
+        if (isAppCache && key !== STATIC_CACHE && key !== DYNAMIC_CACHE) {
+          return caches.delete(key);
+        }
+        return undefined;
+      })
+    )).then(() => self.clients.claim())
   );
 });
 
@@ -50,34 +59,35 @@ self.addEventListener('fetch', (event) => {
   const { request } = event;
   if (request.method !== 'GET') return;
 
-  const url = new URL(request.url);
-
-  // Estratégia 1: Navegação HTML -> Network First com fallback para offline.html
   if (request.mode === 'navigate') {
     event.respondWith(
       fetch(request)
         .then((response) => {
-          const copy = response.clone();
-          caches.open(DYNAMIC_CACHE).then((cache) => cache.put(request, copy));
+          if (response.ok) {
+            const copy = response.clone();
+            caches.open(DYNAMIC_CACHE)
+              .then((cache) => cache.put(request, copy))
+              .catch((error) => console.error('[SW] Erro ao guardar navegação em cache:', error));
+          }
           return response;
         })
-        .catch(() => {
-          return caches.match(request)
-            .then((cached) => cached || caches.match('/pages/offline.html'));
+        .catch(async () => {
+          return await caches.match(request) || await caches.match(OFFLINE_URL);
         })
     );
     return;
   }
 
-  // Estratégia 2: Recursos Estáticos (CSS, JS, Imagens) -> Cache First
   event.respondWith(
     caches.match(request).then((cachedResponse) => {
       if (cachedResponse) return cachedResponse;
 
       return fetch(request).then((networkResponse) => {
-        if (networkResponse && networkResponse.status === 200) {
+        if (networkResponse.ok) {
           const copy = networkResponse.clone();
-          caches.open(DYNAMIC_CACHE).then((cache) => cache.put(request, copy));
+          caches.open(DYNAMIC_CACHE)
+            .then((cache) => cache.put(request, copy))
+            .catch((error) => console.error('[SW] Erro ao guardar recurso em cache:', error));
         }
         return networkResponse;
       });
