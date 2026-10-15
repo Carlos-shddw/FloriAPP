@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>Floricultura — Botânica & Cuidados de Plantas</title>
+
+  <!-- Metadados PWA e Safari/iOS -->
+  <meta name="theme-color" content="#1B4D3E">
+  <meta name="description" content="Guia botânico científico, identificação de espécies e agenda de rega e fertilização.">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/assets/images/icons/icon-192x192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <!-- Fontes Google (Inter + Playfair Display para toque botânico elegante) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
+
+  <!-- Estilos -->
+  <link rel="stylesheet" href="/assets/css/styles.css">
+  <link rel="stylesheet" href="/assets/css/components/header.css">
+  <link rel="stylesheet" href="/assets/css/components/cards.css">
+</head>
+<body>
+
+  <!-- Alerta de Instalação PWA (Banner discreto) -->
+  <div id="pwa-install-banner" class="install-banner hidden">
+    <span>Instale a app Floricultura para acesso rápido offline</span>
+    <button id="btn-pwa-install" class="btn-secondary-sm">Instalar</button>
+  </div>
+
+  <!-- Cabeçalho Principal / Topbar -->
+  <header class="navbar">
+    <div class="navbar-container">
+      <a href="#" class="brand">
+        <svg class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2a10 10 0 0 0-10 10c0 5.523 4.477 10 10 10s10-4.477 10-10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16z"/>
+          <path d="M12 6v6l4 2"/>
+        </svg>
+        <span class="brand-title">Floricultura</span>
+      </a>
+
+      <!-- Navegação Desktop -->
+      <nav class="nav-links desktop-only">
+        <button class="nav-btn active" data-target="catalogo">Catálogo</button>
+        <button class="nav-btn" data-target="minhas-plantas">O Meu Jardim</button>
+        <button class="nav-btn" data-target="identificar">Identificar</button>
+        <button class="nav-btn" data-target="lembretes">Agenda</button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Conteúdo Principal -->
+  <main class="main-content">
+
+    <!-- Secção 1: Catálogo Botânico -->
+    <section id="catalogo" class="app-section active">
+      <header class="section-header">
+        <span class="badge">Catálogo Científico</span>
+        <h1>Explore as Espécies Botânicas</h1>
+        <p class="subtitle">Aceda a fichas técnicas completas com informação sobre luminosidade, substrato e rega.</p>
+      </header>
+
+      <!-- Painel de Pesquisa e Filtros Profissionais -->
+      <div class="filter-panel">
+        <div class="search-input-wrapper">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+          </svg>
+          <input type="text" id="search-input" placeholder="Pesquisar por nome científico ou comum (ex: Monstera, Ficus)...">
+        </div>
+        
+        <div class="filter-group">
+          <select id="filter-light" class="custom-select">
+            <option value="">Luminosidade (Todas)</option>
+            <option value="direta">Sol Direto</option>
+            <option value="indireta">Luz Indireta</option>
+            <option value="sombra">Sombra</option>
+          </select>
+
+          <select id="filter-toxicity" class="custom-select">
+            <option value="">Segurança com Animais</option>
+            <option value="false">Segura para Pets</option>
+            <option value="true">Tóxica</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Lista de Cartões de Plantas -->
+      <div id="plant-list" class="cards-grid">
+        <!-- Gerado dinamicamente pelo JS -->
+      </div>
+    </section>
+
+    <!-- Secção 2: O Meu Jardim (Gestão de Plantas Pessoais) -->
+    <section id="minhas-plantas" class="app-section hidden">
+      <header class="section-header space-between">
+        <div>
+          <h1>O Meu Jardim</h1>
+          <p class="subtitle">Gira a coleção das suas plantas e registe o histórico de cuidados.</p>
+        </div>
+        <button id="btn-add-plant" class="btn-primary">+ Adicionar Planta</button>
+      </header>
+
+      <div id="my-plants-list" class="cards-grid">
+        <!-- Lista do Jardim Pessoal (IndexedDB) -->
+      </div>
+    </section>
+
+    <!-- Secção 3: Identificação de Plantas por Imagem -->
+    <section id="identificar" class="app-section hidden">
+      <header class="section-header">
+        <h1>Identificação Inteligente</h1>
+        <p class="subtitle">Carregue uma fotografia clara das folhas ou flores para reconhecer a espécie.</p>
+      </header>
+
+      <div class="dropzone-card">
+        <div class="dropzone-icon">📷</div>
+        <h3>Arraste ou Selecione uma Foto</h3>
+        <p>Formatos suportados: JPG, PNG, WEBP</p>
+        <input type="file" id="camera-input" accept="image/*" capture="environment" hidden>
+        <button class="btn-secondary" onclick="document.getElementById('camera-input').click()">Escolher Ficheiro</button>
+      </div>
+
+      <div id="identification-results" class="results-container"></div>
+    </section>
+
+    <!-- Secção 4: Agenda de Lembretes -->
+    <section id="lembretes" class="app-section hidden">
+      <header class="section-header">
+        <h1>Agenda de Rega & Manutenção</h1>
+        <p class="subtitle">Próximas tarefas recomendadas para manter o seu jardim saudável.</p>
+      </header>
+
+      <div id="reminders-list" class="timeline-container">
+        <!-- Lista de tarefas pendentes -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Navegação Inferior Móvel (Bottom Nav - PWA Native Feel) -->
+  <nav class="bottom-nav mobile-only">
+    <button class="bottom-nav-item active" data-target="catalogo">
+      <span class="nav-icon">📖</span>
+      <span class="nav-label">Catálogo</span>
+    </button>
+    <button class="bottom-nav-item" data-target="minhas-plantas">
+      <span class="nav-icon">🪴</span>
+      <span class="nav-label">Jardim</span>
+    </button>
+    <button class="bottom-nav-item" data-target="identificar">
+      <span class="nav-icon">🔍</span>
+      <span class="nav-label">Identificar</span>
+    </button>
+    <button class="bottom-nav-item" data-target="lembretes">
+      <span class="nav-icon">📅</span>
+      <span class="nav-label">Agenda</span>
+    </button>
+  </nav>
+
+  <!-- Script de Inicialização -->
+  <script type="module" src="/assets/js/app.js"></script>
+</body>
+</html>
