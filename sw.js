@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v1.1.0';
+const CACHE_VERSION = 'v1.5.0';
 const SCOPE_URL = self.registration.scope;
 const SCOPE_NAME = new URL(SCOPE_URL).pathname.split('/').filter(Boolean).join('-') || 'root';
 const CACHE_PREFIX = `floricultura-${SCOPE_NAME.toLowerCase()}`;
@@ -13,11 +13,14 @@ const APP_SHELL_PATHS = [
   'pages/offline.html',
   'pages/sobre.html',
   'assets/css/styles.css',
+  'assets/css/auth.css',
+  'assets/css/catalog.css',
   'assets/css/components/header.css',
   'assets/css/components/cards.css',
   'assets/js/app.js',
   'assets/js/db.js',
   'assets/js/modules/api.js',
+  'assets/js/modules/catalog.js',
   'assets/js/modules/ui.js',
   'assets/js/modules/utils.js',
   'manifest.json'

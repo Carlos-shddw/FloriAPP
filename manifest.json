@@ -1,6 +1,6 @@
 {
-  "name": "Floricultura — Botânica & Jardinagem",
-  "short_name": "Floricultura",
+  "name": "Botanica",
+  "short_name": "Botanica",
   "description": "Plataforma para identificação de espécies, catálogo botânico e gestão inteligente de cuidados de plantas.",
   "start_url": "./index.html",
   "display": "standalone",

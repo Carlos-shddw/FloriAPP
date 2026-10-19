@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-  <title>Floricultura — Botânica & Cuidados de Plantas</title>
+  <title>Botanica — Bem-vindo ao teu jardim</title>
 
   <!-- Metadados PWA e Safari/iOS -->
   <meta name="theme-color" content="#1B4D3E">
@@ -16,25 +16,131 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Epilogue:wght@500;600;700&family=Material+Symbols+Outlined:opsz,wght,FILL@20..48,400,0..1&display=swap" rel="stylesheet">
 
   <!-- Estilos -->
   <link rel="stylesheet" href="./assets/css/styles.css">
   <link rel="stylesheet" href="./assets/css/components/header.css">
   <link rel="stylesheet" href="./assets/css/components/cards.css">
+  <link rel="stylesheet" href="./assets/css/catalog.css">
+  <link rel="stylesheet" href="./assets/css/auth.css">
 </head>
 <body>
 
-  <!-- Alerta de Instalação PWA (Banner discreto) -->
-  <div id="pwa-install-banner" class="install-banner hidden">
-    <span>Instale a app Floricultura para acesso rápido offline</span>
-    <button id="btn-pwa-install" class="btn-secondary-sm">Instalar</button>
+  <!-- Ecrã inicial de acesso -->
+  <main id="auth-screen" class="auth-screen">
+    <section class="auth-card" aria-labelledby="auth-title">
+      <a class="auth-brand" href="#" aria-label="Botanica">
+        <span class="material-symbols-outlined" aria-hidden="true">psychiatry</span>
+        <span>Botanica</span>
+      </a>
+
+      <div class="auth-welcome">
+        <span class="auth-eyebrow">
+          <span class="material-symbols-outlined" aria-hidden="true">eco</span>
+          Plataforma Botânica
+        </span>
+        <h1 id="auth-title">Bem-vindo de volta, jardineiro!</h1>
+        <p id="auth-description">Insere os teus dados para aceder ao teu jardim.</p>
+        <p class="auth-demo-note">Modo de demonstração: as contas ficam apenas neste navegador e não são sincronizadas.</p>
+      </div>
+
+      <form id="login-form" class="auth-form">
+        <div class="auth-field">
+          <label for="login-email">Email</label>
+          <div class="auth-input-wrap">
+            <span class="material-symbols-outlined" aria-hidden="true">mail</span>
+            <input id="login-email" name="email" type="email" autocomplete="email" placeholder="jardineiro@exemplo.com" required>
+          </div>
+        </div>
+
+        <div class="auth-field">
+          <label for="login-password">Palavra-passe</label>
+          <div class="auth-input-wrap">
+            <span class="material-symbols-outlined" aria-hidden="true">lock</span>
+            <input id="login-password" name="password" type="password" autocomplete="current-password" placeholder="A tua palavra-passe" required>
+            <button class="password-toggle" type="button" data-password-target="login-password" aria-label="Mostrar palavra-passe">
+              <span class="material-symbols-outlined" aria-hidden="true">visibility</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="auth-forgot">
+          <button class="auth-text-button" type="button" data-auth-action="reset">Esqueci-me da palavra-passe</button>
+        </div>
+
+        <button class="auth-submit" type="submit">
+          Entrar
+          <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+        </button>
+      </form>
+
+      <form id="signup-form" class="auth-form hidden">
+        <div class="auth-field">
+          <label for="signup-name">Nome</label>
+          <div class="auth-input-wrap">
+            <span class="material-symbols-outlined" aria-hidden="true">person</span>
+            <input id="signup-name" name="name" type="text" autocomplete="name" placeholder="O teu nome" required>
+          </div>
+        </div>
+
+        <div class="auth-field">
+          <label for="signup-email">Email</label>
+          <div class="auth-input-wrap">
+            <span class="material-symbols-outlined" aria-hidden="true">mail</span>
+            <input id="signup-email" name="email" type="email" autocomplete="email" placeholder="jardineiro@exemplo.com" required>
+          </div>
+        </div>
+
+        <div class="auth-field">
+          <label for="signup-password">Palavra-passe</label>
+          <div class="auth-input-wrap">
+            <span class="material-symbols-outlined" aria-hidden="true">lock</span>
+            <input id="signup-password" name="password" type="password" autocomplete="new-password" placeholder="Pelo menos 8 caracteres" minlength="8" required>
+            <button class="password-toggle" type="button" data-password-target="signup-password" aria-label="Mostrar palavra-passe">
+              <span class="material-symbols-outlined" aria-hidden="true">visibility</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="auth-field">
+          <label for="signup-confirm-password">Confirmar palavra-passe</label>
+          <div class="auth-input-wrap">
+            <span class="material-symbols-outlined" aria-hidden="true">lock</span>
+            <input id="signup-confirm-password" name="confirm-password" type="password" autocomplete="new-password" placeholder="Repete a palavra-passe" required>
+          </div>
+        </div>
+
+        <button class="auth-submit" type="submit">
+          Criar conta
+          <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+        </button>
+      </form>
+
+      <p class="auth-switch" id="login-switch">
+        Não tens conta?
+        <button class="auth-text-button" type="button" data-auth-mode="signup">Criar conta</button>
+      </p>
+      <p class="auth-switch hidden" id="signup-switch">
+        Já tens conta?
+        <button class="auth-text-button" type="button" data-auth-mode="login">Iniciar sessão</button>
+      </p>
+
+      <button id="btn-explore-without-account" class="auth-guest" type="button">Explorar o catálogo sem conta</button>
+    </section>
+
+  </main>
+
+  <div id="auth-toast" class="auth-toast" role="status" aria-live="polite">
+    <span class="material-symbols-outlined" aria-hidden="true">spa</span>
+    <span id="auth-toast-message"></span>
   </div>
 
   <!-- Cabeçalho Principal / Topbar -->
-  <header class="navbar">
+  <header class="navbar auth-gated hidden">
     <div class="navbar-container">
       <a href="#" class="brand">
-        <span class="brand-title">Floricultura</span>
+        <span class="brand-title">Botanica</span>
       </a>
 
       <!-- Navegação Desktop -->
@@ -44,46 +150,90 @@
         <button class="nav-btn" data-target="identificar">Identificar</button>
         <button class="nav-btn" data-target="lembretes">Agenda</button>
       </nav>
+      <button id="btn-pwa-install" class="pwa-install-button" type="button">
+        <span class="material-symbols-outlined" aria-hidden="true">download</span>
+        Instalar para uso offline
+      </button>
+      <button id="btn-auth-return" class="auth-return" type="button">Acesso</button>
     </div>
   </header>
 
   <!-- Conteúdo Principal -->
-  <main class="main-content">
+  <main class="main-content auth-gated hidden">
 
     <!-- Secção 1: Catálogo Botânico -->
     <section id="catalogo" class="app-section active">
       <header class="section-header">
-        <span class="badge">Catálogo Científico</span>
-        <h1>Explore as Espécies Botânicas</h1>
-        <p class="subtitle">Aceda a fichas técnicas completas com informação sobre luminosidade, substrato e rega.</p>
+        <span class="badge">O teu guia botânico</span>
+        <h1>Encontra a planta ideal para ti</h1>
+        <p class="subtitle">Explora espécies, compara os cuidados e descobre qual se adapta melhor à tua casa.</p>
       </header>
 
-      <!-- Painel de Pesquisa e Filtros Profissionais -->
-      <div class="filter-panel">
-        <div class="search-input-wrapper">
-          <input type="text" id="search-input" placeholder="Pesquisar por nome científico ou comum (ex: Monstera, Ficus)...">
+      <div class="catalog-highlights" aria-label="Destaques do catálogo">
+        <div class="catalog-highlight">
+          <span class="material-symbols-outlined" aria-hidden="true">yard</span>
+          <span><strong id="catalog-total">0</strong> espécies para explorar</span>
         </div>
-        
-        <div class="filter-group">
+        <div class="catalog-highlight">
+          <span class="material-symbols-outlined" aria-hidden="true">pets</span>
+          <span>Opções seguras para animais</span>
+        </div>
+        <div class="catalog-highlight">
+          <span class="material-symbols-outlined" aria-hidden="true">light_mode</span>
+          <span>Cuidados para cada espaço</span>
+        </div>
+      </div>
+
+      <div class="catalog-toolbar">
+        <div class="search-input-wrapper">
+          <span class="material-symbols-outlined" aria-hidden="true">search</span>
+          <input type="search" id="search-input" autocomplete="off" placeholder="Pesquisar plantas pelo nome..." aria-label="Pesquisar plantas">
+          <button id="clear-search" class="clear-search hidden" type="button" aria-label="Limpar pesquisa">
+            <span class="material-symbols-outlined" aria-hidden="true">close</span>
+          </button>
+        </div>
+
+        <div class="catalog-selects">
           <select id="filter-light" class="custom-select">
-            <option value="">Luminosidade (Todas)</option>
+            <option value="">Todas as luzes</option>
             <option value="direta">Sol Direto</option>
             <option value="indireta">Luz Indireta</option>
             <option value="sombra">Sombra</option>
           </select>
-
-          <select id="filter-toxicity" class="custom-select">
-            <option value="">Segurança com Animais</option>
-            <option value="false">Segura para Pets</option>
-            <option value="true">Tóxica</option>
+          <select id="filter-pets" class="custom-select">
+            <option value="">Compatibilidade com animais</option>
+            <option value="safe">Segura para animais</option>
+            <option value="toxic">Manter longe dos animais</option>
+          </select>
+          <select id="catalog-sort" class="custom-select" aria-label="Ordenar plantas">
+            <option value="name">Ordenar: nome</option>
+            <option value="easy">Ordenar: mais fáceis</option>
           </select>
         </div>
       </div>
 
-      <!-- Lista de Cartões de Plantas -->
-      <div id="plant-list" class="cards-grid">
-        <!-- Gerado dinamicamente pelo JS -->
+      <div class="catalog-results-heading">
+        <h2>As nossas plantas</h2>
+        <p id="catalog-result-count" aria-live="polite"></p>
       </div>
+
+      <div id="plant-list" class="cards-grid">
+        <p class="catalog-loading">A preparar o catálogo...</p>
+      </div>
+
+      <div id="catalog-empty" class="catalog-empty hidden" role="status">
+        <span class="material-symbols-outlined" aria-hidden="true">search_off</span>
+        <h3>Não encontrámos plantas</h3>
+        <p>Experimenta alterar a pesquisa ou remover alguns filtros.</p>
+        <button id="reset-catalog" class="catalog-reset" type="button">Limpar pesquisa e filtros</button>
+      </div>
+
+      <dialog id="plant-details" class="plant-dialog" aria-labelledby="plant-dialog-title">
+        <button class="plant-dialog-close" type="button" aria-label="Fechar detalhes">
+          <span class="material-symbols-outlined" aria-hidden="true">close</span>
+        </button>
+        <div id="plant-dialog-content"></div>
+      </dialog>
     </section>
 
     <!-- Secção 2: O Meu Jardim (Gestão de Plantas Pessoais) -->
@@ -134,7 +284,7 @@
   </main>
 
   <!-- Navegação Inferior Móvel (Bottom Nav - PWA Native Feel) -->
-  <nav class="bottom-nav mobile-only">
+  <nav class="bottom-nav mobile-only auth-gated hidden">
     <button class="bottom-nav-item active" data-target="catalogo">
       <span class="nav-icon">📖</span>
       <span class="nav-label">Catálogo</span>
