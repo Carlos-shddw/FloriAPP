@@ -1,6 +1,6 @@
 {
-  "name": "Botanica",
-  "short_name": "Botanica",
+  "name": "Botânica",
+  "short_name": "Botânica",
   "description": "Plataforma para identificação de espécies, catálogo botânico e gestão inteligente de cuidados de plantas.",
   "start_url": "./index.html",
   "display": "standalone",

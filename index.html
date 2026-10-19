@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-  <title>Botanica — Bem-vindo ao teu jardim</title>
+  <title>Botânica — Bem-vindo ao teu jardim</title>
 
   <!-- Metadados PWA e Safari/iOS -->
   <meta name="theme-color" content="#1B4D3E">
@@ -27,12 +27,88 @@
 </head>
 <body>
 
-  <!-- Ecrã inicial de acesso -->
-  <main id="auth-screen" class="auth-screen">
-    <section class="auth-card" aria-labelledby="auth-title">
-      <a class="auth-brand" href="#" aria-label="Botanica">
+  <main id="welcome-screen" class="welcome-screen" aria-labelledby="welcome-title">
+    <header class="welcome-header">
+      <a class="welcome-brand" href="./index.html" aria-label="Botânica — início">
         <span class="material-symbols-outlined" aria-hidden="true">psychiatry</span>
-        <span>Botanica</span>
+        <span>Botânica</span>
+      </a>
+      <span class="welcome-community">
+        <span class="material-symbols-outlined" aria-hidden="true">eco</span>
+        Comunidade verde
+      </span>
+    </header>
+
+    <div class="welcome-content">
+      <section class="welcome-hero">
+        <div class="welcome-hero-copy">
+          <span class="welcome-eyebrow">
+            <span class="material-symbols-outlined" aria-hidden="true">spa</span>
+            O teu guia botânico pessoal
+          </span>
+          <h1 id="welcome-title">Mais verde, mais vida.</h1>
+          <p>Descobre novas plantas e aprende a cuidar delas, ao teu ritmo.</p>
+          <button id="btn-welcome-enter" class="welcome-primary" type="button">
+            Entrar
+            <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+          </button>
+          <button id="btn-welcome-signup" class="welcome-secondary" type="button">
+            Ainda não tens conta? <span>Criar conta</span>
+          </button>
+        </div>
+        <div class="welcome-hero-art" aria-hidden="true">
+          <span class="welcome-art-orbit welcome-art-orbit-one"></span>
+          <span class="welcome-art-orbit welcome-art-orbit-two"></span>
+          <span class="material-symbols-outlined welcome-art-leaf">potted_plant</span>
+          <span class="welcome-art-spark welcome-art-spark-one material-symbols-outlined">eco</span>
+          <span class="welcome-art-spark welcome-art-spark-two material-symbols-outlined">yard</span>
+          <span class="welcome-art-caption">Cultiva o teu espaço</span>
+        </div>
+      </section>
+
+      <section class="welcome-features" aria-label="O que podes fazer">
+        <article class="welcome-feature">
+          <span class="welcome-feature-icon">
+            <span class="material-symbols-outlined" aria-hidden="true">photo_camera</span>
+          </span>
+          <div>
+            <h2>Identificação inteligente</h2>
+            <p>Descobre o nome e a espécie de uma planta através de uma fotografia.</p>
+          </div>
+        </article>
+        <article class="welcome-feature">
+          <span class="welcome-feature-icon welcome-feature-icon-sage">
+            <span class="material-symbols-outlined" aria-hidden="true">water_drop</span>
+          </span>
+          <div>
+            <h2>Lembretes de rega</h2>
+            <p>Recebe ajuda para manter os cuidados das tuas plantas em dia.</p>
+          </div>
+        </article>
+        <article class="welcome-feature">
+          <span class="welcome-feature-icon welcome-feature-icon-warm">
+            <span class="material-symbols-outlined" aria-hidden="true">menu_book</span>
+          </span>
+          <div>
+            <h2>Catálogo botânico</h2>
+            <p>Explora espécies e consulta dicas de luz, solo e cuidados.</p>
+          </div>
+        </article>
+      </section>
+
+      <p class="welcome-terms">
+        Ao continuar, concordas com os nossos <a href="./pages/sobre.html">termos de utilização</a>
+        e com a nossa política de privacidade.
+      </p>
+    </div>
+  </main>
+
+  <!-- Ecrã de criar conta e iniciar sessão -->
+  <main id="auth-screen" class="auth-screen hidden">
+    <section class="auth-card" aria-labelledby="auth-title">
+      <a class="auth-brand" href="#" aria-label="Botânica">
+        <span class="material-symbols-outlined" aria-hidden="true">psychiatry</span>
+        <span>Botânica</span>
       </a>
 
       <div class="auth-welcome">
@@ -140,7 +216,7 @@
   <header class="navbar auth-gated hidden">
     <div class="navbar-container">
       <a href="#" class="brand">
-        <span class="brand-title">Botanica</span>
+        <span class="brand-title">Botânica</span>
       </a>
 
       <!-- Navegação Desktop -->

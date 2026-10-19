@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v1.5.0';
+const CACHE_VERSION = 'v1.6.0';
 const SCOPE_URL = self.registration.scope;
 const SCOPE_NAME = new URL(SCOPE_URL).pathname.split('/').filter(Boolean).join('-') || 'root';
 const CACHE_PREFIX = `floricultura-${SCOPE_NAME.toLowerCase()}`;
@@ -6,7 +6,6 @@ const STATIC_CACHE = `${CACHE_PREFIX}-static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE = `${CACHE_PREFIX}-dynamic-${CACHE_VERSION}`;
 const OFFLINE_URL = new URL('pages/offline.html', SCOPE_URL).href;
 
-// Recursos essenciais do App Shell
 const APP_SHELL_PATHS = [
   '',
   'index.html',
@@ -25,19 +24,24 @@ const APP_SHELL_PATHS = [
   'assets/js/modules/utils.js',
   'manifest.json'
 ];
+
 const APP_SHELL = APP_SHELL_PATHS.map((path) => new URL(path, SCOPE_URL).href);
 
-// Instalação: Pré-carregamento estático
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(STATIC_CACHE).then((cache) => {
-      console.log('[SW] Pré-carregamento do App Shell concluído');
-      return cache.addAll(APP_SHELL);
-    }).then(() => self.skipWaiting())
+    caches.open(STATIC_CACHE)
+      .then((cache) => cache.addAll(APP_SHELL))
+      .then(() => {
+        console.log('[SW] App Shell carregado com sucesso.');
+        return self.skipWaiting();
+      })
+      .catch((error) => {
+        console.error('[SW] Falha ao pré-carregar o App Shell:', error);
+        return self.skipWaiting();
+      })
   );
 });
 
-// Ativação: Limpeza apenas das caches desta aplicação
 self.addEventListener('activate', (event) => {
   const legacyCaches = new Set([
     'floricultura-static-v1.0.0',
@@ -57,20 +61,20 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Interceção de Pedidos (Fetch)
 self.addEventListener('fetch', (event) => {
   const { request } = event;
+
   if (request.method !== 'GET') return;
 
   if (request.mode === 'navigate') {
     event.respondWith(
       fetch(request)
         .then((response) => {
-          if (response.ok) {
+          if (response && response.ok) {
             const copy = response.clone();
             caches.open(DYNAMIC_CACHE)
               .then((cache) => cache.put(request, copy))
-              .catch((error) => console.error('[SW] Erro ao guardar navegação em cache:', error));
+              .catch((error) => console.error('[SW] Erro ao guardar navegação:', error));
           }
           return response;
         })
@@ -86,14 +90,14 @@ self.addEventListener('fetch', (event) => {
       if (cachedResponse) return cachedResponse;
 
       return fetch(request).then((networkResponse) => {
-        if (networkResponse.ok) {
+        if (networkResponse && networkResponse.ok) {
           const copy = networkResponse.clone();
           caches.open(DYNAMIC_CACHE)
             .then((cache) => cache.put(request, copy))
-            .catch((error) => console.error('[SW] Erro ao guardar recurso em cache:', error));
+            .catch((error) => console.error('[SW] Erro ao guardar recurso:', error));
         }
         return networkResponse;
-      });
+      }).catch(() => caches.match(OFFLINE_URL));
     })
   );
 });

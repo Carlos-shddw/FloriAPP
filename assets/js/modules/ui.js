@@ -10,6 +10,7 @@ export function initUI() {
 }
 
 function setupAuthenticationScreen() {
+  const welcomeScreen = document.getElementById('welcome-screen');
   const authScreen = document.getElementById('auth-screen');
   const appElements = document.querySelectorAll('.auth-gated');
   const loginForm = document.getElementById('login-form');
@@ -41,24 +42,33 @@ function setupAuthenticationScreen() {
       : 'Insere os teus dados para aceder ao teu jardim.';
   }
 
-  function showApp(account = null) {
-    currentAccount = account;
-    authScreen.classList.add('hidden');
-    appElements.forEach((element) => element.classList.remove('hidden'));
-    returnButton.textContent = account ? 'Terminar sessão' : 'Acesso';
-    returnButton.setAttribute('aria-label', account ? `Terminar sessão de ${account.name}` : 'Voltar ao acesso');
+  function showAuthentication(mode = 'login') {
+    welcomeScreen.classList.add('hidden');
+    authScreen.classList.remove('hidden');
+    showMode(mode);
     window.scrollTo({ top: 0 });
   }
 
-  function returnToLogin() {
+  function showWelcome() {
     currentAccount = null;
-    authScreen.classList.remove('hidden');
+    authScreen.classList.add('hidden');
+    welcomeScreen.classList.remove('hidden');
     appElements.forEach((element) => element.classList.add('hidden'));
     loginForm.reset();
     signupForm.reset();
     showMode('login');
     returnButton.textContent = 'Acesso';
     returnButton.setAttribute('aria-label', 'Voltar ao acesso');
+    window.scrollTo({ top: 0 });
+  }
+
+  function showApp(account = null) {
+    currentAccount = account;
+    welcomeScreen.classList.add('hidden');
+    authScreen.classList.add('hidden');
+    appElements.forEach((element) => element.classList.remove('hidden'));
+    returnButton.textContent = account ? 'Terminar sessão' : 'Acesso';
+    returnButton.setAttribute('aria-label', account ? `Terminar sessão de ${account.name}` : 'Voltar ao acesso');
     window.scrollTo({ top: 0 });
   }
 
@@ -107,8 +117,11 @@ function setupAuthenticationScreen() {
   }
 
   document.querySelectorAll('[data-auth-mode]').forEach((button) => {
-    button.addEventListener('click', () => showMode(button.dataset.authMode));
+    button.addEventListener('click', () => showAuthentication(button.dataset.authMode));
   });
+
+  document.getElementById('btn-welcome-enter').addEventListener('click', () => showAuthentication('login'));
+  document.getElementById('btn-welcome-signup').addEventListener('click', () => showAuthentication('signup'));
 
   document.querySelectorAll('[data-password-target]').forEach((button) => {
     button.addEventListener('click', () => {
@@ -215,13 +228,13 @@ function setupAuthenticationScreen() {
   document.getElementById('btn-explore-without-account').addEventListener('click', () => showApp());
   returnButton.addEventListener('click', () => {
     if (!currentAccount) {
-      returnToLogin();
+      showWelcome();
       return;
     }
 
     try {
       window.localStorage.removeItem(DEMO_SESSION_KEY);
-      returnToLogin();
+      showWelcome();
       showToast('Sessão terminada.');
     } catch (error) {
       console.error('Erro ao terminar sessão de demonstração:', error);
