@@ -1,6 +1,7 @@
-const CACHE_VERSION = 'v1.6.0';
+const CACHE_VERSION = 'v2.3.0';
 const SCOPE_URL = self.registration.scope;
-const SCOPE_NAME = new URL(SCOPE_URL).pathname.split('/').filter(Boolean).join('-') || 'root';
+const SCOPE_PATH = new URL(SCOPE_URL).pathname;
+const SCOPE_NAME = SCOPE_PATH.split('/').filter(Boolean).join('-') || 'root';
 const CACHE_PREFIX = `floricultura-${SCOPE_NAME.toLowerCase()}`;
 const STATIC_CACHE = `${CACHE_PREFIX}-static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE = `${CACHE_PREFIX}-dynamic-${CACHE_VERSION}`;
@@ -11,6 +12,10 @@ const APP_SHELL_PATHS = [
   'index.html',
   'pages/offline.html',
   'pages/sobre.html',
+  'manifest.json',
+  'assets/images/icons/favicon.svg',
+  'assets/images/icons/icon.svg',
+  'assets/images/icons/icon-maskable.svg',
   'assets/css/styles.css',
   'assets/css/auth.css',
   'assets/css/catalog.css',
@@ -21,23 +26,46 @@ const APP_SHELL_PATHS = [
   'assets/js/modules/api.js',
   'assets/js/modules/catalog.js',
   'assets/js/modules/ui.js',
-  'assets/js/modules/utils.js',
-  'manifest.json'
+  'assets/js/modules/utils.js'
 ];
 
 const APP_SHELL = APP_SHELL_PATHS.map((path) => new URL(path, SCOPE_URL).href);
+
+function isInScope(url) {
+  return url.origin === self.location.origin && url.pathname.startsWith(SCOPE_PATH);
+}
+
+async function cacheResponse(cacheName, request, response) {
+  if (!response || response.status !== 200 || response.type === 'opaque') return;
+
+  try {
+    const cache = await caches.open(cacheName);
+    await cache.put(request, response.clone());
+  } catch (error) {
+    console.error(`[SW] Falha ao guardar ${request.url} na cache ${cacheName}:`, error);
+  }
+}
+
+async function getCachedResponse(request) {
+  const staticCache = await caches.open(STATIC_CACHE);
+  const staticResponse = await staticCache.match(request);
+  if (staticResponse) return staticResponse;
+
+  const dynamicCache = await caches.open(DYNAMIC_CACHE);
+  return dynamicCache.match(request);
+}
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(STATIC_CACHE)
       .then((cache) => cache.addAll(APP_SHELL))
       .then(() => {
-        console.log('[SW] App Shell carregado com sucesso.');
+        console.log('[SW] App Shell pré-carregado com sucesso.');
         return self.skipWaiting();
       })
       .catch((error) => {
         console.error('[SW] Falha ao pré-carregar o App Shell:', error);
-        return self.skipWaiting();
+        throw error;
       })
   );
 });
@@ -49,55 +77,51 @@ self.addEventListener('activate', (event) => {
   ]);
 
   event.waitUntil(
-    caches.keys().then((keys) => Promise.all(
-      keys.map((key) => {
-        const isAppCache = key.startsWith(`${CACHE_PREFIX}-`) || legacyCaches.has(key);
-        if (isAppCache && key !== STATIC_CACHE && key !== DYNAMIC_CACHE) {
-          return caches.delete(key);
-        }
-        return undefined;
-      })
-    )).then(() => self.clients.claim())
+    caches.keys()
+      .then((keys) => Promise.all(
+        keys.map((key) => {
+          const isAppCache = key.startsWith(`${CACHE_PREFIX}-`) || legacyCaches.has(key);
+          if (isAppCache && key !== STATIC_CACHE && key !== DYNAMIC_CACHE) {
+            return caches.delete(key);
+          }
+          return undefined;
+        })
+      ))
+      .then(() => self.clients.claim())
   );
 });
 
 self.addEventListener('fetch', (event) => {
   const { request } = event;
+  const requestUrl = new URL(request.url);
 
-  if (request.method !== 'GET') return;
+  if (request.method !== 'GET' || !isInScope(requestUrl)) return;
 
   if (request.mode === 'navigate') {
-    event.respondWith(
-      fetch(request)
-        .then((response) => {
-          if (response && response.ok) {
-            const copy = response.clone();
-            caches.open(DYNAMIC_CACHE)
-              .then((cache) => cache.put(request, copy))
-              .catch((error) => console.error('[SW] Erro ao guardar navegação:', error));
-          }
-          return response;
-        })
-        .catch(async () => {
-          return await caches.match(request) || await caches.match(OFFLINE_URL);
-        })
-    );
+    event.respondWith((async () => {
+      try {
+        const response = await fetch(request);
+        if (response.ok) await cacheResponse(DYNAMIC_CACHE, request, response);
+        return response;
+      } catch (error) {
+        const cachedPage = await getCachedResponse(request);
+        if (cachedPage) return cachedPage;
+
+        const offlinePage = await caches.match(OFFLINE_URL);
+        if (offlinePage) return offlinePage;
+
+        throw error;
+      }
+    })());
     return;
   }
 
-  event.respondWith(
-    caches.match(request).then((cachedResponse) => {
-      if (cachedResponse) return cachedResponse;
+  event.respondWith((async () => {
+    const cachedResponse = await getCachedResponse(request);
+    if (cachedResponse) return cachedResponse;
 
-      return fetch(request).then((networkResponse) => {
-        if (networkResponse && networkResponse.ok) {
-          const copy = networkResponse.clone();
-          caches.open(DYNAMIC_CACHE)
-            .then((cache) => cache.put(request, copy))
-            .catch((error) => console.error('[SW] Erro ao guardar recurso:', error));
-        }
-        return networkResponse;
-      }).catch(() => caches.match(OFFLINE_URL));
-    })
-  );
+    const response = await fetch(request);
+    if (response.ok) await cacheResponse(DYNAMIC_CACHE, request, response);
+    return response;
+  })());
 });

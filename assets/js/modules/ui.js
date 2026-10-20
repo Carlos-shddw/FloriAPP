@@ -4,12 +4,12 @@ const DEMO_SESSION_KEY = 'botanica-demo-session';
 const PASSWORD_HASH_ITERATIONS = 210000;
 
 export function initUI() {
-  setupNavigation();
-  setupAuthenticationScreen();
+  const navigateToSection = setupNavigation();
+  setupAuthenticationScreen(navigateToSection);
   setupPWAInstaller();
 }
 
-function setupAuthenticationScreen() {
+function setupAuthenticationScreen(navigateToSection) {
   const welcomeScreen = document.getElementById('welcome-screen');
   const authScreen = document.getElementById('auth-screen');
   const appElements = document.querySelectorAll('.auth-gated');
@@ -67,6 +67,7 @@ function setupAuthenticationScreen() {
     welcomeScreen.classList.add('hidden');
     authScreen.classList.add('hidden');
     appElements.forEach((element) => element.classList.remove('hidden'));
+    navigateToSection(window.location.hash.slice(1), false);
     returnButton.textContent = account ? 'Terminar sessão' : 'Acesso';
     returnButton.setAttribute('aria-label', account ? `Terminar sessão de ${account.name}` : 'Voltar ao acesso');
     window.scrollTo({ top: 0 });
@@ -259,33 +260,38 @@ function setupNavigation() {
   const navButtons = document.querySelectorAll('[data-target]');
   const sections = document.querySelectorAll('.app-section');
 
+  function navigateToSection(targetId, updateHash = true) {
+    const section = document.getElementById(targetId);
+    if (!section || !section.matches('.app-section')) return;
+
+    navButtons.forEach((button) => {
+      button.classList.toggle('active', button.getAttribute('data-target') === targetId);
+    });
+    sections.forEach((appSection) => {
+      const isTarget = appSection === section;
+      appSection.classList.toggle('hidden', !isTarget);
+      appSection.classList.toggle('active', isTarget);
+    });
+
+    if (updateHash && window.location.hash !== `#${targetId}`) {
+      window.location.hash = targetId;
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
   navButtons.forEach((btn) => {
     btn.addEventListener('click', () => {
       const targetId = btn.getAttribute('data-target');
-
-      // Atualizar botões ativos (desktop + móvel)
-      navButtons.forEach((b) => {
-        if (b.getAttribute('data-target') === targetId) {
-          b.classList.add('active');
-        } else {
-          b.classList.remove('active');
-        }
-      });
-
-      // Alternar secções visíveis
-      sections.forEach((sec) => {
-        if (sec.id === targetId) {
-          sec.classList.remove('hidden');
-          sec.classList.add('active');
-        } else {
-          sec.classList.add('hidden');
-          sec.classList.remove('active');
-        }
-      });
-
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      navigateToSection(targetId);
     });
   });
+
+  window.addEventListener('hashchange', () => {
+    navigateToSection(window.location.hash.slice(1), false);
+  });
+
+  navigateToSection(window.location.hash.slice(1), false);
+  return navigateToSection;
 }
 
 // Gestão de Prompt de Instalação PWA
@@ -295,6 +301,10 @@ function setupPWAInstaller() {
   const navbarContainer = installBtn.closest('.navbar-container');
   const toast = document.getElementById('auth-toast');
   const toastMessage = document.getElementById('auth-toast-message');
+  const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent)
+    || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const isInstalled = window.matchMedia('(display-mode: standalone)').matches
+    || navigator.standalone === true;
   let toastTimeout;
 
   function hideInstallButton() {
@@ -316,8 +326,17 @@ function setupPWAInstaller() {
     navbarContainer.classList.add('install-available');
   });
 
+  if (isIOS && !isInstalled) {
+    installBtn.classList.remove('hidden');
+    navbarContainer.classList.add('install-available');
+  }
+
   installBtn.addEventListener('click', async () => {
     if (!deferredPrompt) {
+      if (isIOS && !isInstalled) {
+        showInstallMessage('Para instalar no iPhone ou iPad, toca em Partilhar e escolhe «Adicionar ao ecrã principal».');
+        return;
+      }
       showInstallMessage('A instalação não está disponível neste browser. Abre a app através de HTTPS ou localhost num browser compatível.');
       return;
     }

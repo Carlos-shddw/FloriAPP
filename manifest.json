@@ -2,13 +2,29 @@
   "name": "Botânica",
   "short_name": "Botânica",
   "description": "Plataforma para identificação de espécies, catálogo botânico e gestão inteligente de cuidados de plantas.",
+  "id": "./index.html",
   "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#F4F6F4",
   "theme_color": "#1B4D3E",
   "orientation": "portrait",
   "lang": "pt-PT",
   "categories": ["lifestyle", "education", "utilities"],
+  "icons": [
+    {
+      "src": "./assets/images/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "./assets/images/icons/icon-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
   "shortcuts": [
     {
       "name": "O Meu Jardim",
